@@ -9,10 +9,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
-// import io.opentelemetry.api.trace.Span;
-// import io.opentelemetry.instrumentation.annotations.WithSpan;
-// import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-// import io.opentelemetry.instrumentation.annotations.AddingSpanAttributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.AddingSpanAttributes;
 
 @RestController
 public class RollController {
@@ -20,6 +20,7 @@ public class RollController {
 	private static final Logger logger = LogManager.getLogger(RollController.class);
 
 
+@AddingSpanAttributes
 	@GetMapping("/rolldice")
 	public String index(@RequestParam("player") Optional<String> player) {
 		int result = this.getRandomNumber(-2, 6);
@@ -35,7 +36,8 @@ public class RollController {
 		return Integer.toString(result);
 	}
 
-    public int getRandomNumber(int min, int max) {
+	@WithSpan
+	public int getRandomNumber(int min, int max) {
         int result = (int) ((Math.random() * (max - min)) + min);
         return result;
     }

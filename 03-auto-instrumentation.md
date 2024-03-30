@@ -323,16 +323,31 @@ Open the [RollController.java](./app/backend2/src/main/java/io/opentelemetry/dic
     }
 ```
 
-Compile it and deploy:
+Create/review GitHub personal access token
+
+Navigate to your Github profile - Developer settings - Personal access tokens
+https://github.com/settings/tokens
+
+Create and export Personal Access Token with read/write access to packages, make it available as environment variable, needed for `docker push` to work
+
+```bash
+export CR_PAT=gh_xxx
+echo $CR_PAT | docker login ghcr.io -u mvasilenko  --password-stdin
+```
+
+Compile it, push docker image to Github Container Registry (packages)
 ```bash
 cd app/backend2
+docker build -t ghcr.io/mvasilenko/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan-auto . 
+docker push ghcr.io/pavolloffay/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan-auto
+```
 
-# Use minikube's docker registry
-# eval $(minikube -p minikube docker-env)
-docker build -t ghcr.io/pavolloffay/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan . 
-# docker push ghcr.io/pavolloffay/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan
+Make it publicly available - navigate to Github profile - Packages tab - choose `kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2` package - Package settings - Danger zone - Change package visibility - Public - Make this package visible to anyone.
 
-kubectl set image deployment.apps/backend2-deployment backend2=ghcr.io/pavolloffay/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan -n tutorial-application
+Update deployment with newly compiled image 
+
+```bash
+kubectl set image deployment.apps/backend2-deployment backend2=ghcr.io/mvasilenko/kubecon-eu-2024-opentelemetry-kubernetes-tracing-tutorial-backend2:withspan-auto -n tutorial-application
 kubectl get pods -w -n tutorial-application
 ```
 
